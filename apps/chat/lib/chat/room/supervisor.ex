@@ -7,15 +7,16 @@ defmodule Chat.Room.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: @name)
   end
 
-  def start_room(room_name) do
-    Supervisor.start_child(
-      @name, [room_name, [restart: :transient]]
-    )
+  @doc """
+  Creates a new room, with `admin` as the first user.
+  """
+  def start_room(admin, admin_pid) do
+    Supervisor.start_child(@name, [admin, admin_pid])
   end
 
   def init(:ok) do
     children = [
-      worker(Chat.Room, [])
+      worker(Chat.Room, [], restart: :transient)
     ]
 
     supervise(children, strategy: :simple_one_for_one)

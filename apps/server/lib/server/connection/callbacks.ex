@@ -125,9 +125,25 @@ defmodule Server.Connection.Callbacks do
     {:next_state, :chat, state}
   end
 
+  def chat(event_type, event, state) do
+    handle_event(event_type, event, :chat, state)
+  end
+
   #======================================#
   # General State                        #
   #======================================#
+
+  def handle_event({:call, from}, :list_chats, state_name, state) do
+    %State{rooms: rooms} = state
+    rooms_list =
+      rooms
+      |> Map.keys()
+      |> Enum.join("\n")
+      |> Kernel.<>("\n")
+
+    reply = [{:reply, from, {:ok, rooms_list}}]
+    {:next_state, state_name, state, reply}
+  end
 
   def handle_event({:call, _from}, :exit, _state_name, _state) do
     {:stop, :normal}

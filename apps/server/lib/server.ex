@@ -52,66 +52,6 @@ defmodule Server do
     loop_acceptor(listen)
   end
 
-  # This function runs inside a `Task`. It is responsible to communicate
-  # the current `socket` (client) with the `Chat` application.
-  defp serve(socket, conn) do
-    alias Server.Command
-
-    socket
-    |> read_line()
-    |> Command.parse()
-    |> send_to_chat_conn(conn)
-    |> write_line(socket)
-
-    serve(socket, conn)
-  end
-
-  # This function assumes a parsed command.
-  # It sends the command as a event to `Server.Connection`.
-  defp send_to_chat_conn({:join, chat_name}, conn) do
-    conn
-    |> Connection.join_chat(chat_name)
-    |> case do
-         {_, msg} -> msg
-       end
-  end
-
-  defp send_to_chat_conn({:create, chat_name}, conn) do
-    conn
-    |> Connection.create_chat(chat_name)
-    |> case do
-         {:ok, msg} -> msg
-         {:error, reason} -> reason
-       end
-  end
-
-  defp send_to_chat_conn({:client_name, client_name}, conn) do
-    conn
-    |> Connection.client_name(client_name)
-    |> case do
-         {_, msg} -> msg
-         {:error, reason} -> reason
-       end
-  end
-
-  defp send_to_chat_conn({:message, message}, conn) do
-    conn
-    |> Connection.send_message(message)
-    |> case do
-         :ok -> ""
-         {:error, reason} -> reason
-       end
-  end
-
-  defp send_to_chat_conn(_unknown, conn) do
-    "ERROR: Unknown command.\n"
-  end
-
-  defp read_line(socket) do
-    {:ok, data} = :gen_tcp.recv(socket, 0)
-    data
-  end
-
   defp write_line(data, socket) do
     :gen_tcp.send(socket, data)
   end

@@ -11,12 +11,19 @@ defmodule Server.Command do
     {:create, String.strip(chat_name)}
   end
 
+  defp do_parse(["%%switch", chat_name]) do
+    {:switch, String.strip(chat_name)}
+  end
+
+  defp do_parse(["%%list\r\n"]) do
+    :list
+  end
+
   defp do_parse(["%%username", username]) do
     {:client_name, String.strip(username)}
   end
 
   defp do_parse(message) do
-    IO.puts "parsing message"
     {:message, Enum.join(message, " ")}
   end
 end

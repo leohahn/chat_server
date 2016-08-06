@@ -25,8 +25,16 @@ defmodule Server.Connection do
     :gen_statem.call(conn, {:create_chat, chat_name})
   end
 
+  def switch_chat(conn, chat_name) do
+    :gen_statem.call(conn, {:switch_chat, chat_name})
+  end
+
   def send_message(conn, message) do
     :gen_statem.call(conn, {:send_message, message})
+  end
+
+  def list_chats(conn) do
+    :gen_statem.call(conn, :list_chats)
   end
 
   def exit(conn) do

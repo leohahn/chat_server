@@ -74,6 +74,24 @@ defmodule Server.ClientConnection do
        end
   end
 
+  defp send_to_chat_conn({:switch, chat_name}, conn) do
+    conn
+    |> Connection.switch_chat(chat_name)
+    |> case do
+         {:ok, msg} -> msg
+         {:error, reason} -> reason
+       end
+  end
+
+  defp send_to_chat_conn(:list, conn) do
+    conn
+    |> Connection.list_chats()
+    |> case do
+         {:ok, msg} -> msg
+         {:error, reason} -> reason
+       end
+  end
+
   defp send_to_chat_conn({:client_name, client_name}, conn) do
     conn
     |> Connection.client_name(client_name)

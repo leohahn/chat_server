@@ -1,7 +1,7 @@
-defmodule Server.Connection.Supervisor do
+defmodule Server.ChatConnection.Supervisor do
   use Supervisor
 
-  @name Server.Connection.Supervisor
+  @name Server.ChatConnection.Supervisor
 
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: @name)
@@ -13,7 +13,7 @@ defmodule Server.Connection.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Server.Connection, [], restart: :temporary)
+      worker(Server.ChatConnection, [], restart: :temporary)
     ]
 
     supervise(children, strategy: :simple_one_for_one)

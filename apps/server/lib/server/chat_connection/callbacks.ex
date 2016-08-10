@@ -1,13 +1,13 @@
-defmodule Server.Connection.Callbacks do
+defmodule Server.ChatConnection.Callbacks do
   @moduledoc """
   This module implements all of the necessary callbacks
-  for the `Server.Connection module.`
+  for the `Server.ChatConnection` module.
   """
 
-  defmodule Server.Connection.Callbacks.State do
+  defmodule Server.ChatConnection.Callbacks.State do
     @moduledoc """
     This modules implements the state struct utilized inside
-    Server.Connection.Callbacks.
+    `Server.ChatConnection.Callbacks`.
     """
 
     defstruct(
@@ -18,7 +18,7 @@ defmodule Server.Connection.Callbacks do
     )
   end
   # Alias the name, so we can refer to it only with `State`.
-  alias Server.Connection.Callbacks.State
+  alias Server.ChatConnection.Callbacks.State
 
   @help_msg """
   +-------------- Commands -----------------+

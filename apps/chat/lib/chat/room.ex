@@ -1,8 +1,7 @@
 defmodule Chat.Room do
   @moduledoc """
-  Module that implements a chat room.
-  This module works with workers, which are spawned from
-  their supervisor and communicated with the public API.
+  Module that implements a chat room. It is a simple
+  process receives messages and broadcasts them to all subscribers.
   """
 
   @doc """

@@ -1,4 +1,8 @@
 defmodule Chat do
+  @moduledoc """
+  This application implements a chat registry and chatrooms.
+  They give the user the ability to create a chat logic on top of the module.
+  """
   use Application
 
   def start(_type, _args) do

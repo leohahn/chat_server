@@ -1,6 +1,12 @@
 defmodule Server.ClientConnection do
+  @moduledoc """
+  This server implements a tcp connection that communicates with
+  `Server.ChatConnection`.
+  It receives tcp messages asynchronously, parses them in different
+  commands and sends them to the chat connection.
+  """
   use GenServer
-  alias Server.Connection
+  alias Server.ChatConnection
 
   #====================#
   # API                #
@@ -15,7 +21,7 @@ defmodule Server.ClientConnection do
   #====================#
 
   def init(client) do
-    {:ok, conn} = Server.Connection.Supervisor.start_child
+    {:ok, conn} = Server.ChatConnection.Supervisor.start_child
     Process.monitor(conn)
 
     write_line """
@@ -65,7 +71,7 @@ defmodule Server.ClientConnection do
   # of the function.
   defp send_to_chat_conn({:join, chat_name}, conn) do
     conn
-    |> Connection.join_chat(chat_name)
+    |> ChatConnection.join_chat(chat_name)
     |> case do
          {_, msg} -> msg
        end
@@ -73,19 +79,19 @@ defmodule Server.ClientConnection do
 
   defp send_to_chat_conn(:help, conn) do
     conn
-    |> Connection.help()
+    |> ChatConnection.help()
     |> case do
          {_, msg} -> msg
        end
   end
 
   defp send_to_chat_conn(:exit, conn) do
-    conn |> Connection.exit()
+    conn |> ChatConnection.exit()
   end
 
   defp send_to_chat_conn(:active, conn) do
     conn
-    |> Connection.active_chat()
+    |> ChatConnection.active_chat()
     |> case do
          {_, msg} -> msg
        end
@@ -93,7 +99,7 @@ defmodule Server.ClientConnection do
 
   defp send_to_chat_conn({:create, chat_name}, conn) do
     conn
-    |> Connection.create_chat(chat_name)
+    |> ChatConnection.create_chat(chat_name)
     |> case do
          {:ok, msg} -> msg
          {:error, reason} -> reason
@@ -102,7 +108,7 @@ defmodule Server.ClientConnection do
 
   defp send_to_chat_conn({:switch, chat_name}, conn) do
     conn
-    |> Connection.switch_chat(chat_name)
+    |> ChatConnection.switch_chat(chat_name)
     |> case do
          {:ok, msg} -> msg
          {:error, reason} -> reason
@@ -111,7 +117,7 @@ defmodule Server.ClientConnection do
 
   defp send_to_chat_conn(:list, conn) do
     conn
-    |> Connection.list_chats()
+    |> ChatConnection.list_chats()
     |> case do
          {:ok, msg} -> msg
          {:error, reason} -> reason
@@ -120,16 +126,16 @@ defmodule Server.ClientConnection do
 
   defp send_to_chat_conn({:client_name, client_name}, conn) do
     conn
-    |> Connection.client_name(client_name)
+    |> ChatConnection.client_name(client_name)
     |> case do
-         {_, msg} -> msg
+         {:ok, msg} -> msg
          {:error, reason} -> reason
        end
   end
 
   defp send_to_chat_conn({:message, message}, conn) do
     conn
-    |> Connection.send_message(message)
+    |> ChatConnection.send_message(message)
     |> case do
          :ok -> ""
          {:error, reason} -> reason

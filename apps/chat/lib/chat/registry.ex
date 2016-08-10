@@ -1,4 +1,8 @@
 defmodule Chat.Registry do
+  @moduledoc """
+  This module implements a chatroom registry server. It is an interface
+  to manage chatrooms, like creating and deleting.
+  """
   use GenServer
 
   #=====================#

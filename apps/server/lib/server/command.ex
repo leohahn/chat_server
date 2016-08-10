@@ -1,4 +1,12 @@
 defmodule Server.Command do
+  @moduledoc """
+  This module makes it easy to parse commands that are sent to
+  `Server.ChatConnection`.
+  """
+
+  @doc """
+  Parses a string into a command.
+  """
   def parse(command) when is_binary(command) do
     do_parse String.split(command, " ")
   end

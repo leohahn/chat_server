@@ -1,16 +1,15 @@
-defmodule Server.Connection do
+defmodule Server.ChatConnection do
   @moduledoc """
   This modules implements a chat connection.
-  It is created whenever a new `socket` connection is
-  accepted by `Server.loop_acceptor`. The communication
-  with the `:app` application should happen always here.
+  It is created pairwise with a `Server.ClientConnection`.
 
-  This process should be linked with a Task supervised by
-  Server.TaskSupervisor.
+  It provides an API that allows the user to communicate with the
+  `Server.ChatConnection` finite state machine. This fsm implements
+  the chat logic, communicating with the `:chat` application.
   """
 
   def start_link do
-    :gen_statem.start_link(Server.Connection.Callbacks, [], [])
+    :gen_statem.start_link(Server.ChatConnection.Callbacks, [], [])
   end
 
   def client_name(conn, name) do

@@ -1,13 +1,11 @@
 defmodule Server do
   @moduledoc """
-  Implements a tcp server. This server accepts connections
-  through tcp and connects the client to the chat application.
-  This is designed to work mainly with a `telnet` client.
+  Implements a Server module, which makes tcp connections with clients
+  and communicates with the `:chat` application.
   """
 
   use Application
   require Logger
-  alias Server.Connection
 
   @port 4040
 
@@ -17,7 +15,7 @@ defmodule Server do
     # Define workers and child supervisors to be supervised
     children = [
       supervisor(Server.ClientConnection.Supervisor, []),
-      supervisor(Server.Connection.Supervisor, []),
+      supervisor(Server.ChatConnection.Supervisor, []),
       worker(Task, [Server, :accept, [@port]])
     ]
 
@@ -25,6 +23,10 @@ defmodule Server do
     Supervisor.start_link(children, opts)
   end
 
+  @doc """
+  Listens and accepts TCP connections on a given `port`.
+  New connections spawn a new `Server.ClientConnection` server.
+  """
   def accept(port) do
     {:ok, listen} = :gen_tcp.listen(
       port,
@@ -51,9 +53,5 @@ defmodule Server do
     :ok = :gen_tcp.controlling_process(client, client_conn)
     # Repeats the process to potentially other clients.
     loop_acceptor(listen)
-  end
-
-  defp write_line(data, socket) do
-    :gen_tcp.send(socket, data)
   end
 end

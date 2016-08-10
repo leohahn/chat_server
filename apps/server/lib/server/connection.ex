@@ -37,8 +37,16 @@ defmodule Server.Connection do
     :gen_statem.call(conn, :list_chats)
   end
 
+  def help(conn) do
+    :gen_statem.call(conn, :help)
+  end
+
+  def active_chat(conn) do
+    :gen_statem.call(conn, :active_chat)
+  end
+
   def exit(conn) do
-    :gen_statem.call(conn, :exit)
+    :ok = :gen_statem.stop(conn)
   end
 
 end

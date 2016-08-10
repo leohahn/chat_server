@@ -17,6 +17,7 @@ defmodule Server do
     # Define workers and child supervisors to be supervised
     children = [
       supervisor(Server.ClientConnection.Supervisor, []),
+      supervisor(Server.Connection.Supervisor, []),
       worker(Task, [Server, :accept, [@port]])
     ]
 

@@ -8,8 +8,8 @@ defmodule Chat.Room do
   @doc """
   Starts a new room process, with `admin` as admin.
   """
-  def start_link(admin, admin_pid) do
-    ret = {:ok, pid} = Agent.start_link(fn -> %{} end)
+  def start_link(room_name, admin, admin_pid) do
+    ret = {:ok, pid} = Agent.start_link(fn -> %{name: room_name, clients: %{}} end)
     join(pid, admin, admin_pid)
     ret
   end
@@ -23,10 +23,14 @@ defmodule Chat.Room do
   def join(room, client_name, client_pid) do
     IO.puts "#{client_name} joining"
     chat_state = Agent.get(room, &(&1))
-    if client_name in Map.keys(chat_state) do
+    if client_name in Map.keys(chat_state.clients) do
       {:error, :client_exists}
     else
-      Agent.update(room, &Map.put(&1, client_name, client_pid))
+      Agent.update(room, fn state ->
+        Map.merge(state, %{
+              clients: Map.put(state.clients, client_name, client_pid)
+        })
+      end)
     end
   end
 
@@ -37,13 +41,13 @@ defmodule Chat.Room do
   Returns `:ok` if successful, `{:error, :not_found}` if client non existent.
   """
   def send_message(room, client_name, message) when is_binary(message) do
-    chat_state = Agent.get(room, &(&1))
-    if Map.has_key?(chat_state, client_name) do
-      chat_state
+    state = Agent.get(room, &(&1))
+    if Map.has_key?(state.clients, client_name) do
+      state.clients
       |> Enum.filter(fn {name, _pid} -> name != client_name end)
       |> Keyword.values()
       |> Enum.each(fn pid ->
-        send pid, {:chat_message, self, "#{client_name}: " <> message}
+        send pid, {:chat_message, state.name, "#{client_name}: " <> message}
       end)
     else
       {:error, :not_found}
@@ -58,15 +62,15 @@ defmodule Chat.Room do
   def leave(room, client_name) do
     # Removes client_name from the Agent.
     res = Agent.get_and_update room, fn state ->
-      case Map.pop(state, client_name) do
-        {nil, state} ->
+      case Map.pop(state.clients, client_name) do
+        {nil, clients} ->
           {{:error, :not_found}, state}
-        {return, state} ->
-          {:ok, state}
+        {_return, new_clients} ->
+          {:ok, %{state | clients: new_clients}}
       end
     end
     # Checks if the Agent's state is empty, if so kills the process.
-    if Enum.empty?(Agent.get(room, &(&1))) do
+    if Enum.empty?(Agent.get(room, &(&1)).clients) do
       Agent.stop(room, :normal)
     end
     res

@@ -45,7 +45,7 @@ defmodule Chat.Registry do
     if Map.has_key?(rooms, room_name) do
       {:reply, {:error, :already_exists}, state}
     else
-      {:ok, pid} = Chat.Room.Supervisor.start_room(admin, admin_pid)
+      {:ok, pid} = Chat.Room.Supervisor.start_room(room_name, admin, admin_pid)
       ref = Process.monitor(pid)
       new_rooms = Map.put(rooms, room_name, pid)
       new_refs = Map.put(refs, ref, room_name)
@@ -63,7 +63,7 @@ defmodule Chat.Registry do
     end
   end
 
-  def handle_info({:DOWN, ref, :process, _pid, :normal}, {rooms, refs}) do
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, {rooms, refs}) do
     {room_name, new_refs} = Map.pop(refs, ref)
     new_rooms = Map.delete(rooms, room_name)
 

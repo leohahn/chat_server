@@ -10,13 +10,13 @@ defmodule Chat.Room.Supervisor do
   @doc """
   Creates a new room, with `admin` as the first user.
   """
-  def start_room(admin, admin_pid) do
-    Supervisor.start_child(@name, [admin, admin_pid])
+  def start_room(chat_name, admin, admin_pid) do
+    Supervisor.start_child(@name, [chat_name, admin, admin_pid])
   end
 
   def init(:ok) do
     children = [
-      worker(Chat.Room, [], restart: :transient)
+      worker(Chat.Room, [], restart: :temporary)
     ]
 
     supervise(children, strategy: :simple_one_for_one)

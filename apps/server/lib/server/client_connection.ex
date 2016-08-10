@@ -15,13 +15,14 @@ defmodule Server.ClientConnection do
   #====================#
 
   def init(client) do
-    {:ok, conn} = Server.Connection.start_link
+    {:ok, conn} = Server.Connection.Supervisor.start_child
+    Process.monitor(conn)
 
     write_line """
-    Sucessfuly connected, please enter your name (%%username <name>):
+    Sucessfuly connected, please enter your name (@username <name>):
     """, client
 
-    schedule_set_active_mode()
+    schedule_set_active_mode
 
     {:ok, {client, conn}}
   end
@@ -50,6 +51,11 @@ defmodule Server.ClientConnection do
     {:noreply, state}
   end
 
+  def handle_info({:DOWN, _ref, :process, _pid, _reason}, {client, _conn} = state) do
+    write_line("Good Bye!\n", client)
+    {:stop, :shutdown, state}
+  end
+
   #====================#
   # Internal Functions #
   #====================#
@@ -60,6 +66,26 @@ defmodule Server.ClientConnection do
   defp send_to_chat_conn({:join, chat_name}, conn) do
     conn
     |> Connection.join_chat(chat_name)
+    |> case do
+         {_, msg} -> msg
+       end
+  end
+
+  defp send_to_chat_conn(:help, conn) do
+    conn
+    |> Connection.help()
+    |> case do
+         {_, msg} -> msg
+       end
+  end
+
+  defp send_to_chat_conn(:exit, conn) do
+    conn |> Connection.exit()
+  end
+
+  defp send_to_chat_conn(:active, conn) do
+    conn
+    |> Connection.active_chat()
     |> case do
          {_, msg} -> msg
        end

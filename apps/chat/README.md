@@ -1,24 +1,4 @@
 # Chat
 
-**TODO: Add description**
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-  1. Add `chat` to your list of dependencies in `mix.exs`:
-
-    ```elixir
-    def deps do
-      [{:chat, "~> 0.1.0"}]
-    end
-    ```
-
-  2. Ensure `chat` is started before your application:
-
-    ```elixir
-    def application do
-      [applications: [:chat]]
-    end
-    ```
-
+The `chat` application implements two core functionality aspects. `Chat.Room`, which is a publish/subscribe server that emulates
+a chatroom and `Chat.Registry` being a registry of all created chatrooms. This way, the user can use the registry to get hold of proccesses and create them.
